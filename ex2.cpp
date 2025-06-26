@@ -1060,3 +1060,96 @@ int main() {
 					q.last = nullptr;
 				return x;
 			}
+
+
+
+
+
+#include <iostream>
+#include <fstream>
+using namespace std;
+struct treenode
+{
+ int info;
+ treenode* left, * right;
+};
+struct queuenode
+{
+ queuenode* next;
+ treenode* node;
+};
+struct queue
+{
+ queuenode* first, * last;
+};
+queue create()
+{
+ queue q;
+ q.first = nullptr;
+ q.last = nullptr;
+ return q;
+}
+bool empty(queue q)
+{
+ return(q.first == nullptr);
+}
+void enq(queue &q,treenode *x)
+{
+ queuenode* p = new queuenode;
+ p->node = x;
+ p->next = nullptr;
+ if (empty(q))
+  q.first = q.last = p;
+ else
+ {
+  q.last->next = p;
+  q.last = p;
+ }
+}
+treenode* deq(queue& q)
+{
+ queuenode* p = q.first;
+ treenode* x = q.first->node;
+ q.first = q.first->next;
+ delete p;
+ if (q.first == nullptr)
+  q.last = nullptr;
+ return x;
+}
+treenode* createnode(int x)
+{
+ treenode* p;
+ p = new treenode;
+ p->info = x;
+ p->left = p->right = nullptr;
+ return p;
+}
+treenode* creat(ifstream &in)
+{
+ treenode* root;
+ int x;
+ in >> x;
+ root = createnode(x);
+ queue q = create();
+ enq(q, root);
+ in >> x;
+ while (!in.eof())
+ {
+  treenode* p = deq(q);
+  p->left = createnode(x);
+  enq(q, p->left);
+  in >> x;
+  if (!in.eof())
+  {
+   p->right = createnode(x);
+   enq(q, p->right);
+
+  }
+ }
+ while (!empty(q))
+ {
+  deq(q);
+ }
+ return root;
+}
+
