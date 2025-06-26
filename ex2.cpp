@@ -1511,3 +1511,142 @@ int main() {
  else cout << "Текст неправильный" << endl;
 }
 
+
+
+
+#include <iostream>
+#include <limits>
+using namespace std;
+
+// Структура узла списка
+struct Node {
+    int data;
+    Node* next;
+};
+
+// Создание нового узла
+Node* createNode(int value) {
+    Node* newNode = new Node;
+    newNode->data = value;
+    newNode->next = nullptr;
+    return newNode;
+}
+
+// Добавление элемента в конец списка
+void append(Node*& head, int value) {
+    if (!head) {
+        head = createNode(value);
+        return;
+    }
+    
+    Node* current = head;
+    while (current->next) {
+        current = current->next;
+    }
+    current->next = createNode(value);
+}
+
+// Поиск трех наименьших элементов в списке
+void findThreeSmallest(Node* head, int& min1, int& min2, int& min3) {
+    min1 = min2 = min3 = numeric_limits<int>::max();
+    
+    Node* current = head;
+    while (current) {
+        if (current->data < min1) {
+            min3 = min2;
+            min2 = min1;
+            min1 = current->data;
+        } else if (current->data < min2 && current->data != min1) {
+            min3 = min2;
+            min2 = current->data;
+        } else if (current->data < min3 && current->data != min1 && current->data != min2) {
+            min3 = current->data;
+        }
+        current = current->next;
+    }
+}
+
+// Удаление элементов из L1, которые меньше всех трех минимальных из L2
+void filterList(Node*& L1, int min1, int min2, int min3) {
+    Node* current = L1;
+    Node* prev = nullptr;
+    
+    while (current) {
+        if (current->data < min1 && current->data < min2 && current->data < min3) {
+            // Удаляем текущий узел
+            if (!prev) {
+                // Удаляем голову списка
+                L1 = current->next;
+                delete current;
+                current = L1;
+            } else {
+                prev->next = current->next;
+                delete current;
+                current = prev->next;
+            }
+        } else {
+            prev = current;
+            current = current->next;
+        }
+    }
+}
+
+// Печать списка
+void printList(Node* head) {
+    while (head) {
+        cout << head->data << " ";
+        head = head->next;
+    }
+    cout << endl;
+}
+
+// Освобождение памяти
+void deleteList(Node*& head) {
+    while (head) {
+        Node* temp = head;
+        head = head->next;
+        delete temp;
+    }
+}
+
+int main() {
+    // Создаем список L1
+    Node* L1 = nullptr;
+    append(L1, 5);
+    append(L1, 3);
+    append(L1, 8);
+    append(L1, 1);
+    append(L1, 6);
+    append(L1, 2);
+    
+    // Создаем список L2
+    Node* L2 = nullptr;
+    append(L2, 7);
+    append(L2, 4);
+    append(L2, 9);
+    append(L2, 2);
+    append(L2, 5);
+    
+    cout << "Исходный список L1: ";
+    printList(L1);
+    cout << "Исходный список L2: ";
+    printList(L2);
+    
+    // Находим три наименьших в L2
+    int min1, min2, min3;
+    findThreeSmallest(L2, min1, min2, min3);
+    
+    cout << "Три наименьших в L2: " << min1 << ", " << min2 << ", " << min3 << endl;
+    
+    // Фильтруем L1
+    filterList(L1, min1, min2, min3);
+    
+    cout << "Результат после фильтрации: ";
+    printList(L1);
+    
+    // Освобождаем память
+    deleteList(L1);
+    deleteList(L2);
+    
+    return 0;
+}
