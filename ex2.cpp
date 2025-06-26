@@ -1262,3 +1262,147 @@ int main() {
     return 0;
 }
 
+
+
+#include <iostream>
+#include <cctype> // для tolower()
+
+// Структура узла списка символов
+struct CharNode {
+    char data;
+    CharNode* next;
+};
+
+// Функция для создания нового узла
+CharNode* createNode(char ch) {
+    CharNode* newNode = new CharNode;
+    newNode->data = ch;
+    newNode->next = nullptr;
+    return newNode;
+}
+
+// Функция для вставки символа в начало списка
+void insertFront(CharNode*& head, char ch) {
+    CharNode* newNode = createNode(ch);
+    newNode->next = head;
+    head = newNode;
+}
+
+// Функция для проверки, содержит ли слово букву 'а' (регистронезависимо)
+bool containsA(CharNode* word) {
+    while (word) {
+        if (tolower(word->data) == 'a') {
+            return true;
+        }
+        word = word->next;
+    }
+    return false;
+}
+
+// Функция для обработки текста
+void processText(CharNode*& text) {
+    CharNode* current = text;
+    CharNode* prev = nullptr;
+    bool inWord = false;
+    CharNode* wordStart = nullptr;
+
+    while (current) {
+        if (current->data != ' ') {
+            if (!inWord) {
+                inWord = true;
+                wordStart = current;
+            }
+        } else {
+            if (inWord) {
+                inWord = false;
+                // Проверяем слово на наличие 'a'
+                if (containsA(wordStart)) {
+                    // Вставляем '+' перед словом
+                    CharNode* plusNode = createNode('+');
+                    if (prev == nullptr) {
+                        // Слово в начале текста
+                        plusNode->next = wordStart;
+                        text = plusNode;
+                    } else {
+                        // Слово в середине текста
+                        plusNode->next = wordStart;
+                        prev->next = plusNode;
+                    }
+                    // Обновляем prev, так как мы вставили новый узел
+                    prev = plusNode;
+                }
+            }
+        }
+        prev = current;
+        current = current->next;
+    }
+
+    // Обработка последнего слова в тексте
+    if (inWord && containsA(wordStart)) {
+        insertFront(wordStart, '+');
+        if (prev == nullptr) {
+            text = wordStart;
+        } else {
+            prev->next = wordStart;
+        }
+    }
+}
+
+// Функция для печати списка
+void printList(CharNode* head) {
+    while (head) {
+        std::cout << head->data;
+        head = head->next;
+    }
+    std::cout << std::endl;
+}
+
+// Функция для освобождения памяти
+void freeList(CharNode* head) {
+    while (head) {
+        CharNode* temp = head;
+        head = head->next;
+        delete temp;
+    }
+}
+
+int main() {
+    // Пример текста: "ананас яблоко банан груша"
+    CharNode* text = createNode('а');
+    text->next = createNode('н');
+    text->next->next = createNode('а');
+    text->next->next->next = createNode('н');
+    text->next->next->next->next = createNode('а');
+    text->next->next->next->next->next = createNode('с');
+    text->next->next->next->next->next->next = createNode(' ');
+    text->next->next->next->next->next->next->next = createNode('я');
+    text->next->next->next->next->next->next->next->next = createNode('б');
+    text->next->next->next->next->next->next->next->next->next = createNode('л');
+    text->next->next->next->next->next->next->next->next->next->next = createNode('о');
+    text->next->next->next->next->next->next->next->next->next->next->next = createNode('к');
+    text->next->next->next->next->next->next->next->next->next->next->next->next = createNode('о');
+    text->next->next->next->next->next->next->next->next->next->next->next->next->next = createNode(' ');
+    text->next->next->next->next->next->next->next->next->next->next->next->next->next->next = createNode('б');
+    text->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next = createNode('а');
+    text->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next = createNode('н');
+    text->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next = createNode('а');
+    text->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next = createNode('н');
+    text->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next = createNode(' ');
+    text->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next = createNode('г');
+    text->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next = createNode('р');
+    text->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next = createNode('у');
+    text->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next = createNode('ш');
+    text->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next->next = createNode('а');
+
+    std::cout << "Исходный текст: ";
+    printList(text);
+
+    processText(text);
+
+    std::cout << "Текст после обработки: ";
+    printList(text);
+
+    freeList(text);
+
+    return 0;
+}
