@@ -1406,3 +1406,108 @@ int main() {
 
     return 0;
 }
+
+
+
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+int main() {
+ setlocale(LC_ALL, "RUS");
+ int top = -1;
+ char st[100];
+ char x;
+ bool b = true;
+ ifstream in("in.txt");
+ while (in.peek() != EOF && b) {
+  in.get(x);
+  if (top == -1) {
+   if (x == '!') {
+    top++;
+    st[top] = '!';
+   }
+   else b = false;
+  }
+  else if (st[top] == '!') {
+   if (x == '(') {
+    top++;
+    st[top] = '(';
+   }
+   else b = false;
+  }
+  else if (st[top] == ';' || st[top] == '(') {
+   if (x >= 'A' && x <= 'Z') {
+    top++;
+    st[top] = 'P';
+   }
+   else b = false;
+  }
+  else if (st[top] == 'P') {
+   if (x == ',') {
+    top++;
+    st[top] = ',';
+   }
+   else if (x == ':') {
+    top++;
+    st[top] = ':';
+   }
+   else b = false;
+  }
+  else if (st[top] == ',') {
+   if (x >= 'A' && x <= 'Z') {
+    if (top >= 1 && st[top - 1] == 'P') {
+     top--;
+    }
+   }
+   else b = false;
+  }
+  else if (st[top] == ':') {
+   if (x == '!') {
+    top++;
+    st[top] = '!';
+   }
+   else if (x >= 'A' && x <= 'Z') {
+    if (top >= 1 && st[top - 1] == 'P') {
+     top--;
+     st[top] = 'S';
+     if (top >= 2 && st[top] == 'S' && st[top - 1] == ';' && st[top - 2] == 'S')
+      top -= 2;
+    }
+    else b = false;
+   }
+   else b = false;
+  }
+  else if (st[top] == 'S') {
+   if (x == ';') {
+    top++;
+    st[top] = ';';
+   }
+   else if (x == ')') {
+    if (top >= 6 && st[top] == 'S' && st[top - 1] == '(' && st[top - 2] == '!'\
+     && st[top - 3] == ':' && st[top - 4] == 'P' && st[top - 5] == ';'\
+     && st[top - 6] == 'S') {
+     top -= 6;
+     st[top] = 'S';
+    }
+    else if (top >= 4 && st[top] == 'S' && st[top - 1] == '(' \
+     && st[top - 2] == '!' && st[top - 3] == ':' && st[top - 4] == 'P') {
+     top -= 4;
+     st[top] = 'S';
+    }
+    else if (top >= 2 && st[top] == 'S' && st[top - 1] == '(' \
+     && st[top - 2] == '!') {
+     top -= 2;
+     st[top] = 'K';
+    }
+    else b = false;
+   }
+   else b = false;
+  }
+ }
+ in.close();
+ if (b && top == 0 && st[top]=='K')
+  cout << "Текст правильный" << endl;
+ else cout << "Текст неправильный" << endl;
+}
+
