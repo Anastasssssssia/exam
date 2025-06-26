@@ -1153,3 +1153,112 @@ treenode* creat(ifstream &in)
  return root;
 }
 
+
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+// Структура узла дерева
+struct treeNode {
+    char symbol;    // Символ (буква или цифра)
+    treeNode* left;  // Левое поддерево (точка '.')
+    treeNode* right; // Правое поддерево (тире '-')
+};
+
+// Функция для добавления узла в дерево
+void insertMorseCode(treeNode*& root, char symbol, const string& code) {
+    if (!root) {
+        root = new treeNode{'\0', nullptr, nullptr};
+    }
+
+    treeNode* current = root;
+    for (char c : code) {
+        if (c == '.') {
+            if (!current->left) {
+                current->left = new treeNode{'\0', nullptr, nullptr};
+            }
+            current = current->left;
+        } else if (c == '-') {
+            if (!current->right) {
+                current->right = new treeNode{'\0', nullptr, nullptr};
+            }
+            current = current->right;
+        }
+    }
+    current->symbol = symbol; // Записываем символ в конечный узел
+}
+
+// Построение дерева Морзе
+treeNode* buildMorseTree() {
+    treeNode* root = nullptr;
+
+    // Добавляем буквы и цифры (пример для нескольких символов)
+    insertMorseCode(root, 'E', ".");
+    insertMorseCode(root, 'T', "-");
+    insertMorseCode(root, 'I', "..");
+    insertMorseCode(root, 'A', ".-");
+    insertMorseCode(root, 'N', "-.");
+    insertMorseCode(root, 'M', "--");
+    // ... можно добавить остальные символы по аналогии
+
+    return root;
+}
+
+// Функция для поиска символа в дереве и получения его кода Морзе
+bool findMorseCode(treeNode* root, char target, string& code) {
+    if (!root) return false;
+
+    // Используем обход в глубину (DFS)
+    if (root->symbol == target) {
+        return true;
+    }
+
+    // Проверяем левое поддерево (точка)
+    if (findMorseCode(root->left, target, code)) {
+        code = "." + code;
+        return true;
+    }
+
+    // Проверяем правое поддерево (тире)
+    if (findMorseCode(root->right, target, code)) {
+        code = "-" + code;
+        return true;
+    }
+
+    return false;
+}
+
+// Основная функция кодирования текста в азбуку Морзе
+string textToMorse(treeNode* root, const string& text) {
+    string morseResult;
+    for (char c : text) {
+        if (c == ' ') {
+            morseResult += " "; // Пробел между словами
+            continue;
+        }
+
+        char upperC = toupper(c); // Приводим к верхнему регистру
+        string code;
+        if (findMorseCode(root, upperC, code)) {
+            morseResult += code + " "; // Разделитель между символами
+        } else {
+            morseResult += "? "; // Если символ не найден
+        }
+    }
+    return morseResult;
+}
+
+int main() {
+    treeNode* morseTree = buildMorseTree();
+
+    string inputText;
+    cout << "Введите текст для кодирования в азбуку Морзе: ";
+    getline(cin, inputText);
+
+    string morseCode = textToMorse(morseTree, inputText);
+    cout << "Результат: " << morseCode << endl;
+
+    return 0;
+}
+
