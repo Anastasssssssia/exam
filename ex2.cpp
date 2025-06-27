@@ -1650,3 +1650,144 @@ int main() {
     
     return 0;
 }
+
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+struct TreeNode {
+    char info;
+    TreeNode* right;
+    TreeNode* left;
+};
+
+struct Stack {
+    TreeNode* treeNode;
+    string path; 
+    Stack* next;
+};
+
+void push(Stack*& stack, TreeNode* treeNode, const string& path) {
+
+    Stack* new_stack = new Stack;
+    new_stack->treeNode = treeNode;
+    new_stack->path = path;
+    new_stack->next = stack;
+    stack = new_stack;
+}
+
+TreeNode* pop(Stack*& stack, string& path) {
+    if (!stack) return nullptr;
+
+    TreeNode* res = stack->treeNode;
+    path = stack->path;
+    Stack* temp = stack;
+    stack = stack->next;
+    delete temp;
+    return res;
+}
+
+TreeNode* create_node(char c) {
+    TreeNode* p = new TreeNode;
+    p->info = c;
+    p->left = p->right = nullptr;
+    return p;
+}
+
+TreeNode* create_tree() {
+    TreeNode* root = new TreeNode;;
+
+    root->right = create_node('T');
+    root->left = create_node('K');
+
+    root->right->right = create_node('M');
+    root->right->left = create_node('N');
+
+    root->left->right = create_node('A');
+    root->left->left = create_node('I');
+
+    root->right->right->right = create_node('O');
+    root->right->right->left = create_node('G');
+
+    root->right->left->right = create_node('K');
+    root->right->left->left = create_node('D');
+
+    root->left->right->right = create_node('W');
+    root->left->right->left = create_node('R');
+
+    root->left->left->right = create_node(' ');
+    root->left->left->left = create_node('S');
+
+    root->right->right->left->right = create_node('Q');
+    root->right->right->left->left = create_node('Z');
+
+    root->right->left->right->right = create_node('Y');
+    root->right->left->right->left = create_node('C');
+
+    root->right->left->left->right = create_node('X');
+    root->right->left->left->right = create_node('B');
+
+    root->left->right->right->right = create_node('T');
+    root->left->right->right->left = create_node('P');
+
+    root->left->right->left->left = create_node('L');
+    root->left->right->left->right = nullptr;
+
+    root->left->left->right->left = create_node('F');
+    root->left->left->right->right = nullptr;
+
+    root->left->left->left->right = create_node('V');
+    root->left->left->left->left = create_node('H');
+
+    return root;
+}
+
+//KLP
+string find_morze_code(TreeNode* root, char let) {
+    if (!root) return "";
+
+    Stack* stack = nullptr;
+    push(stack, root, "");
+
+    while (stack) {
+        string current_path;
+        TreeNode* current = pop(stack, current_path);
+
+        if (current->info == let) {
+            return current_path;
+        }
+
+        if (current->right) {
+            push(stack, current->right, current_path + "-");
+        }
+        if (current->left) {
+            push(stack, current->left, current_path + ".");
+        }
+    }
+
+    return "";
+}
+
+void encode(ifstream& in, ofstream& out, TreeNode* root) {
+    char c;
+    while (in.get(c)) {
+
+        string code = find_morze_code(root, c);
+        if (!code.empty()) out << code << " ";
+    }
+}
+
+int main() {
+    TreeNode* morze = create_tree();
+
+    ifstream in("input.txt");
+    if (!in) exit(1);
+    ofstream out("output.txt");
+
+    encode(in, out, morze);
+
+    in.close();
+    out.close();
+}
+
